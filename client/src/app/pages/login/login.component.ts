@@ -1,3 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { UserService } from './../../services/user.service';
+import { User } from './../../user';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,17 +11,31 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LoginComponent implements OnInit {
 
-  loginUserData ={
+  loginUserData:User ={
     email:'',
     password:''
   }
-  constructor() { }
+  errorMsg:string=''
+  constructor(private _userAuth:UserService,private _router:Router) { }
 
   ngOnInit(): void {
   }
 
   loginUser(){
-    
+    this._userAuth.loginUser(this.loginUserData)
+    .subscribe(
+      res =>{
+        localStorage.setItem('token',res.token)
+        this._router.navigate(['/goals'])
+      },
+      err => {
+        console.log(err)
+        if( err instanceof HttpErrorResponse) {
+          this.errorMsg =err.error.message
+          console.log(err.error)
+          }
+        }
+    )
   }
 
 }
